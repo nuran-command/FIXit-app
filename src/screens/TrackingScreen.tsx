@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,16 +9,19 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { COLORS, FIXED_SERVICES, formatKzt } from '../data/mockData';
 import { useOrder } from '../context/OrderContext';
 import { SimulatedAstanaMap } from '../components/SimulatedAstanaMap';
-import { RoleTogglePill } from '../components/RoleTogglePill';
+import { ClientProfileModal } from '../components/ClientProfileModal';
 
 export const TrackingScreen: React.FC = () => {
   const {
+    clientProfile,
     activeOrder,
     proProfile,
     completeOrderToPayment,
     navigateToStep,
     showToast,
   } = useOrder();
+
+  const [profileModalVisible, setProfileModalVisible] = useState<boolean>(false);
 
   const service = activeOrder?.service || FIXED_SERVICES[0];
   const etaMinutes = activeOrder ? activeOrder.etaMinutes : 5;
@@ -42,7 +45,14 @@ export const TrackingScreen: React.FC = () => {
             <Feather name="arrow-left" size={18} color={COLORS.ink} />
           </TouchableOpacity>
 
-          <RoleTogglePill />
+          {/* Profile Avatar Button */}
+          <TouchableOpacity
+            style={styles.profileAvatarBtn}
+            onPress={() => setProfileModalVisible(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.profileAvatarLetter}>{clientProfile.name.charAt(0)}</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -68,7 +78,7 @@ export const TrackingScreen: React.FC = () => {
         {/* Compact Technician Row */}
         <View style={styles.techRow}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>M</Text>
+            <Text style={styles.avatarText}>{proProfile.name.charAt(0)}</Text>
           </View>
 
           <View style={styles.techInfo}>
@@ -90,7 +100,7 @@ export const TrackingScreen: React.FC = () => {
           <View style={styles.actionIcons}>
             <TouchableOpacity
               style={styles.actionCircle}
-              onPress={() => showToast(`Calling ${proProfile.name}...`)}
+              onPress={() => showToast(`Calling ${proProfile.name} (${proProfile.phone})...`)}
               activeOpacity={0.75}
             >
               <Feather name="phone" size={17} color={COLORS.ink} />
@@ -121,6 +131,12 @@ export const TrackingScreen: React.FC = () => {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Client Profile Modal */}
+      <ClientProfileModal
+        visible={profileModalVisible}
+        onClose={() => setProfileModalVisible(false)}
+      />
     </View>
   );
 };
@@ -154,6 +170,23 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
+  },
+  profileAvatarBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: COLORS.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  profileAvatarLetter: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.ink,
   },
   bottomSheet: {
     flex: 0.4,

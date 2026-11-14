@@ -20,7 +20,7 @@ import {
   formatKzt,
 } from '../data/mockData';
 import { useOrder } from '../context/OrderContext';
-import { RoleTogglePill } from '../components/RoleTogglePill';
+import { ClientProfileModal } from '../components/ClientProfileModal';
 
 const CATEGORIES: { key: ServiceCategory; icon: keyof typeof Feather.glyphMap }[] = [
   { key: 'All', icon: 'grid' },
@@ -31,6 +31,7 @@ const CATEGORIES: { key: ServiceCategory; icon: keyof typeof Feather.glyphMap }[
 
 export const CatalogScreen: React.FC = () => {
   const {
+    clientProfile,
     clientAddress,
     setClientAddress,
     selectServiceForBooking,
@@ -40,6 +41,7 @@ export const CatalogScreen: React.FC = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory>('All');
   const [addressModalVisible, setAddressModalVisible] = useState<boolean>(false);
+  const [profileModalVisible, setProfileModalVisible] = useState<boolean>(false);
   const [customAddressInput, setCustomAddressInput] = useState<string>('');
 
   const filteredServices = useMemo(() => {
@@ -67,7 +69,7 @@ export const CatalogScreen: React.FC = () => {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Minimal Top Bar */}
+        {/* Minimal Top Bar: Address on left, Client Profile Avatar on right */}
         <View style={styles.topBar}>
           <TouchableOpacity
             style={styles.addressButton}
@@ -81,7 +83,14 @@ export const CatalogScreen: React.FC = () => {
             <Feather name="chevron-down" size={15} color={COLORS.secondaryText} />
           </TouchableOpacity>
 
-          <RoleTogglePill />
+          {/* Profile Avatar Button (Replaces debug pill with clean consumer UI) */}
+          <TouchableOpacity
+            style={styles.profileAvatarBtn}
+            onPress={() => setProfileModalVisible(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.profileAvatarLetter}>{clientProfile.name.charAt(0)}</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Active Order Strip if an order is currently in progress */}
@@ -112,7 +121,7 @@ export const CatalogScreen: React.FC = () => {
         {/* Greeting */}
         <Text style={styles.greeting}>What do you need fixed?</Text>
 
-        {/* Horizontal Category Tabs (edge-to-edge padding so last pill never clips) */}
+        {/* Horizontal Category Tabs */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -182,6 +191,13 @@ export const CatalogScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Client Profile Modal */}
+      <ClientProfileModal
+        visible={profileModalVisible}
+        onClose={() => setProfileModalVisible(false)}
+        onOpenAddressSelector={() => setAddressModalVisible(true)}
+      />
 
       {/* Bottom Sheet Modal: Service Address */}
       <Modal
@@ -307,6 +323,21 @@ const styles = StyleSheet.create({
     color: COLORS.ink,
     marginRight: 4,
     flexShrink: 1,
+  },
+  profileAvatarBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileAvatarLetter: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.ink,
   },
   activeStrip: {
     flexDirection: 'row',

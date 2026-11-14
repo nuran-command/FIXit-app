@@ -21,16 +21,18 @@ import { KaspiCheckoutScreen } from './src/screens/KaspiCheckoutScreen';
 import { ReviewScreen } from './src/screens/ReviewScreen';
 
 const MainShell: React.FC = () => {
-  const { role, currentStep, toast, dismissToast } = useOrder();
+  const { isLoggedIn, role, currentStep, toast, dismissToast } = useOrder();
 
   const renderScreen = () => {
+    if (!isLoggedIn || currentStep === 'LOGIN') {
+      return <LoginScreen />;
+    }
+
     if (role === 'PRO' || currentStep === 'PRO_DASHBOARD') {
       return <ProDashboardScreen />;
     }
 
     switch (currentStep) {
-      case 'LOGIN':
-        return <LoginScreen />;
       case 'HOME':
         return <CatalogScreen />;
       case 'BOOKING':

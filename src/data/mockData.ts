@@ -34,17 +34,32 @@ export interface ServiceItem {
 
 export interface ProProfile {
   name: string;
+  fullName: string;
   title: string;
   rating: number;
   verifiedJobs: number;
   vehicleInfo: string;
   phone: string;
+  district: string;
+  experienceYears: number;
+  earningsToday: number;
+  completedToday: number;
+}
+
+export interface ClientProfile {
+  name: string;
+  fullName: string;
+  phone: string;
+  defaultAddress: string;
+  district: string;
+  memberSince: string;
 }
 
 export interface ActiveOrder {
   orderId: string;
   service: ServiceItem;
   clientName: string;
+  clientPhone: string;
   address: string;
   issueDescription: string;
   photoUri: string | null;
@@ -81,19 +96,27 @@ export const ASTANA_ADDRESSES = [
   'Turan Ave 37, Apt 90',
 ];
 
-export const DEFAULT_CLIENT = {
+export const DEFAULT_CLIENT: ClientProfile = {
   name: 'Aidana',
+  fullName: 'Aidana Kassymova',
   phone: '+7 701 555 0192',
   defaultAddress: ASTANA_ADDRESSES[0],
+  district: 'Yesil District, Astana',
+  memberSince: '2024',
 };
 
 export const INITIAL_PRO_PROFILE: ProProfile = {
   name: 'Marat',
-  title: 'Master Plumber',
+  fullName: 'Marat Zhakupov',
+  title: 'Master Plumber & Electrician',
   rating: 4.9,
   verifiedJobs: 127,
   vehicleInfo: 'VW Caddy · 01 777 AST',
   phone: '+7 702 884 1920',
+  district: 'Yesil District, Astana',
+  experienceYears: 14,
+  earningsToday: 32500,
+  completedToday: 4,
 };
 
 export const FIXED_SERVICES: ServiceItem[] = [
@@ -144,6 +167,36 @@ export const FIXED_SERVICES: ServiceItem[] = [
     priceKzt: 10500,
     etaMinutes: 25,
     subtitle: 'Water line connection and leak test · ~25 min arrival',
+  },
+];
+
+export const PRO_RECENT_JOBS = [
+  {
+    id: 'job-1',
+    title: 'Kitchen Faucet Leak',
+    payoutKzt: 8500,
+    client: 'Saule M.',
+    address: 'Kabanbay Batyr 19',
+    time: 'Today, 11:30 AM',
+    paymentType: 'Kaspi QR',
+  },
+  {
+    id: 'job-2',
+    title: 'Socket & Switch Replacement',
+    payoutKzt: 6500,
+    client: 'Daniyar T.',
+    address: 'Mangilik El 38',
+    time: 'Today, 09:15 AM',
+    paymentType: 'Kaspi QR',
+  },
+  {
+    id: 'job-3',
+    title: 'Pipe Burst Emergency',
+    payoutKzt: 14000,
+    client: 'Berik K.',
+    address: 'Turan Ave 22',
+    time: 'Yesterday',
+    paymentType: 'Kaspi QR',
   },
 ];
 

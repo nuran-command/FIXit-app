@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import {
   ActiveOrder,
+  ClientProfile,
   DEFAULT_CLIENT,
   FIXED_SERVICES,
   INITIAL_PRO_PROFILE,
@@ -17,16 +18,21 @@ export interface ToastMessage {
 
 interface OrderContextValue {
   isLoggedIn: boolean;
-  clientName: string;
+  role: RoleMode;
+  currentStep: ScreenStep;
+
+  clientProfile: ClientProfile;
   clientPhone: string;
   clientAddress: string;
   setClientPhone: (phone: string) => void;
   setClientAddress: (address: string) => void;
-  loginWithRole: (selectedRole: RoleMode) => void;
 
-  role: RoleMode;
-  currentStep: ScreenStep;
-  switchRole: (newRole: RoleMode) => void;
+  proProfile: ProProfile;
+  isProOnline: boolean;
+  setIsProOnline: (online: boolean) => void;
+
+  loginWithRole: (selectedRole: RoleMode, phone?: string) => void;
+  logout: () => void;
   navigateToStep: (step: ScreenStep) => void;
 
   selectedService: ServiceItem;
@@ -39,12 +45,13 @@ interface OrderContextValue {
     customService?: ServiceItem;
   }) => void;
 
-  proProfile: ProProfile;
   acceptIncomingJob: () => void;
   declineIncomingJob: () => void;
+  proArrivedAtClient: () => void;
   completeOrderToPayment: () => void;
   confirmKaspiPayment: () => void;
   submitReview: (rating: number, tags: string[], comment: string) => void;
+  simulateIncomingOrder: () => void;
 
   toast: ToastMessage | null;
   showToast: (text: string) => void;
@@ -55,16 +62,18 @@ const OrderContext = createContext<OrderContextValue | undefined>(undefined);
 
 export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [clientName] = useState<string>(DEFAULT_CLIENT.name);
-  const [clientPhone, setClientPhone] = useState<string>(DEFAULT_CLIENT.phone);
-  const [clientAddress, setClientAddress] = useState<string>(DEFAULT_CLIENT.defaultAddress);
-
   const [role, setRole] = useState<RoleMode>('CLIENT');
   const [currentStep, setCurrentStep] = useState<ScreenStep>('LOGIN');
 
+  const [clientProfile] = useState<ClientProfile>(DEFAULT_CLIENT);
+  const [clientPhone, setClientPhone] = useState<string>(DEFAULT_CLIENT.phone);
+  const [clientAddress, setClientAddress] = useState<string>(DEFAULT_CLIENT.defaultAddress);
+
+  const [proProfile, setProProfile] = useState<ProProfile>(INITIAL_PRO_PROFILE);
+  const [isProOnline, setIsProOnline] = useState<boolean>(true);
+
   const [selectedService, setSelectedService] = useState<ServiceItem>(FIXED_SERVICES[0]);
   const [activeOrder, setActiveOrder] = useState<ActiveOrder | null>(null);
-  const [proProfile, setProProfile] = useState<ProProfile>(INITIAL_PRO_PROFILE);
   const [toast, setToast] = useState<ToastMessage | null>(null);
 
   const showToast = useCallback((text: string) => {
@@ -90,7 +99,8 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return {
         orderId: '#FX-2048',
         service: srv,
-        clientName: 'Aidana',
+        clientName: clientProfile.name,
+        clientPhone: clientPhone,
         address: clientAddress || DEFAULT_CLIENT.defaultAddress,
         issueDescription: 'Water dripping under kitchen sink when cold valve is open.',
         photoUri: null,
@@ -101,19 +111,10 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         routeProgress: status === 'ARRIVED' ? 1 : 0.08,
       };
     },
-    [selectedService, clientAddress]
+    [selectedService, clientProfile.name, clientPhone, clientAddress]
   );
 
-  // If presenter switches to Pro mode with no active order, surface an incoming request after 2 seconds
-  useEffect(() => {
-    if (role !== 'PRO' || activeOrder) return;
-    const timer = setTimeout(() => {
-      setActiveOrder(buildOrder('DISPATCHING', FIXED_SERVICES[0]));
-    }, 1800);
-    return () => clearTimeout(timer);
-  }, [role, activeOrder, buildOrder]);
-
-  // Smooth 1-second route progression when technician is EN_ROUTE (~6 seconds total)
+  // Smooth 1-second route progression when technician is EN_ROUTE
   useEffect(() => {
     if (!activeOrder || activeOrder.status !== 'EN_ROUTE') return;
 
@@ -147,15 +148,23 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => clearInterval(interval);
   }, [activeOrder?.status]);
 
-  const loginWithRole = useCallback((selectedRole: RoleMode) => {
+  const loginWithRole = useCallback((selectedRole: RoleMode, phone?: string) => {
     setIsLoggedIn(true);
     setRole(selectedRole);
+    if (phone) {
+      setClientPhone(phone);
+    }
     setCurrentStep(selectedRole === 'PRO' ? 'PRO_DASHBOARD' : 'HOME');
   }, []);
 
+  const logout = useCallback(() => {
+    setIsLoggedIn(false);
+    setCurrentStep('LOGIN');
+    showToast('Signed out successfully');
+  }, [showToast]);
+
   const selectServiceForBooking = useCallback((service: ServiceItem) => {
     setSelectedService(service);
-    setRole('CLIENT');
     setCurrentStep('BOOKING');
   }, []);
 
@@ -178,7 +187,8 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const newOrder: ActiveOrder = {
         orderId: '#FX-2048',
         service: targetService,
-        clientName: 'Aidana',
+        clientName: clientProfile.name,
+        clientPhone: clientPhone,
         address: clientAddress,
         issueDescription:
           description.trim() || `${targetService.title} at ${clientAddress}`,
@@ -190,11 +200,16 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         routeProgress: 0,
       };
       setActiveOrder(newOrder);
-      // Switch seamlessly to Pro Mode so the presenter/user can accept the incoming request
-      setRole('PRO');
-      setCurrentStep('PRO_DASHBOARD');
+
+      // In real-world Client app, the client stays in client flow and goes to tracking
+      if (role === 'CLIENT') {
+        setCurrentStep('TRACKING');
+        showToast('Technician request sent');
+      } else {
+        setCurrentStep('PRO_DASHBOARD');
+      }
     },
-    [selectedService, clientAddress]
+    [selectedService, clientProfile.name, clientPhone, clientAddress, role, showToast]
   );
 
   const acceptIncomingJob = useCallback(() => {
@@ -208,13 +223,26 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         routeProgress: 0.08,
       };
     });
-    setRole('CLIENT');
-    setCurrentStep('TRACKING');
-  }, [buildOrder]);
+    showToast('Job accepted · En route to client');
+  }, [buildOrder, showToast]);
 
   const declineIncomingJob = useCallback(() => {
     setActiveOrder(null);
     showToast('Request declined');
+  }, [showToast]);
+
+  const proArrivedAtClient = useCallback(() => {
+    setActiveOrder((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        status: 'ARRIVED',
+        distanceKm: 0,
+        etaMinutes: 0,
+        routeProgress: 1,
+      };
+    });
+    showToast('Marked as arrived at client location');
   }, [showToast]);
 
   const completeOrderToPayment = useCallback(() => {
@@ -228,9 +256,11 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         status: 'COMPLETED_UNPAID',
       };
     });
-    setRole('CLIENT');
-    setCurrentStep('PAYMENT');
-  }, [buildOrder]);
+    if (role === 'CLIENT') {
+      setCurrentStep('PAYMENT');
+    }
+    showToast('Repair completed · Kaspi QR ready');
+  }, [buildOrder, role, showToast]);
 
   const confirmKaspiPayment = useCallback(() => {
     const timeStr = new Date().toLocaleTimeString([], {
@@ -245,7 +275,13 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         paidAt: timeStr,
       };
     });
-  }, [buildOrder]);
+    setProProfile((prev) => ({
+      ...prev,
+      earningsToday: prev.earningsToday + (activeOrder?.service.priceKzt || 8500),
+      completedToday: prev.completedToday + 1,
+    }));
+    showToast('Payment confirmed via Kaspi QR');
+  }, [activeOrder?.service.priceKzt, buildOrder, showToast]);
 
   const submitReview = useCallback(
     (rating: number, tags: string[], comment: string) => {
@@ -255,36 +291,17 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         verifiedJobs: prev.verifiedJobs + 1,
       }));
       setActiveOrder(null);
-      setRole('CLIENT');
       setCurrentStep('HOME');
       showToast('Thank you for your feedback');
     },
     [showToast]
   );
 
-  const switchRole = useCallback(
-    (newRole: RoleMode) => {
-      setRole(newRole);
-      if (newRole === 'PRO') {
-        setCurrentStep('PRO_DASHBOARD');
-      } else {
-        if (!isLoggedIn && currentStep === 'LOGIN') {
-          setCurrentStep('LOGIN');
-        } else if (activeOrder?.status === 'EN_ROUTE' || activeOrder?.status === 'ARRIVED') {
-          setCurrentStep('TRACKING');
-        } else if (
-          activeOrder?.status === 'COMPLETED_UNPAID' ||
-          activeOrder?.status === 'PAID'
-        ) {
-          setCurrentStep('PAYMENT');
-        } else {
-          setIsLoggedIn(true);
-          setCurrentStep('HOME');
-        }
-      }
-    },
-    [activeOrder, currentStep, isLoggedIn]
-  );
+  const simulateIncomingOrder = useCallback(() => {
+    const order = buildOrder('DISPATCHING', FIXED_SERVICES[0]);
+    setActiveOrder(order);
+    showToast('Incoming job alert nearby!');
+  }, [buildOrder, showToast]);
 
   const navigateToStep = useCallback((step: ScreenStep) => {
     setCurrentStep(step);
@@ -294,26 +311,30 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <OrderContext.Provider
       value={{
         isLoggedIn,
-        clientName,
+        role,
+        currentStep,
+        clientProfile,
         clientPhone,
         clientAddress,
         setClientPhone,
         setClientAddress,
+        proProfile,
+        isProOnline,
+        setIsProOnline,
         loginWithRole,
-        role,
-        currentStep,
-        switchRole,
+        logout,
         navigateToStep,
         selectedService,
         selectServiceForBooking,
         activeOrder,
         createAndDispatchOrder,
-        proProfile,
         acceptIncomingJob,
         declineIncomingJob,
+        proArrivedAtClient,
         completeOrderToPayment,
         confirmKaspiPayment,
         submitReview,
+        simulateIncomingOrder,
         toast,
         showToast,
         dismissToast,
