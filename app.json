@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "FixIt Astana",
+    "slug": "fixit-astana-prototype",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "kz.fixit.astana.prototype"
+    },
+    "android": {
+      "package": "kz.fixit.astana.prototype"
+    }
+  }
+}
+
