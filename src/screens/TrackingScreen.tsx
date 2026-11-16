@@ -287,9 +287,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   completeButton: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 12,
-    height: 50,
+    backgroundColor: COLORS.blackPill,
+    borderRadius: 999,
+    height: 52,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
   completeButtonText: {
     color: COLORS.white,
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   completeButtonTextSubtle: {
     color: COLORS.secondaryText,

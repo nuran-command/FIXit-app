@@ -107,12 +107,14 @@ const styles = StyleSheet.create({
   },
   modalCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 16,
+    borderRadius: 24,
     padding: 24,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
     shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 6 },
     elevation: 4,
   },
   title: {
@@ -167,8 +169,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   doneButton: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 12,
+    backgroundColor: COLORS.blackPill,
+    borderRadius: 999,
     height: 52,
     alignItems: 'center',
     justifyContent: 'center',
@@ -176,6 +178,6 @@ const styles = StyleSheet.create({
   doneButtonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });

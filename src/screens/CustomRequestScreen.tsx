@@ -78,17 +78,21 @@ export const CustomRequestScreen: React.FC = () => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigateToStep('HOME')}
-          activeOpacity={0.7}
-        >
-          <Feather name="arrow-left" size={22} color={COLORS.ink} />
-        </TouchableOpacity>
+        <View style={styles.topNavRow}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigateToStep('HOME')}
+            activeOpacity={0.7}
+          >
+            <Feather name="arrow-left" size={20} color={COLORS.ink} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Custom Request</Text>
+          <View style={{ width: 38 }} />
+        </View>
 
         <Text style={styles.screenTitle}>Describe Your Problem</Text>
         <View style={styles.addressRow}>
-          <Feather name="map-pin" size={14} color={COLORS.secondaryText} />
+          <Feather name="map-pin" size={13} color={COLORS.primary} />
           <Text style={styles.addressText}>{clientAddress}</Text>
         </View>
 
@@ -164,7 +168,7 @@ export const CustomRequestScreen: React.FC = () => {
 
         {/* Issue Details */}
         <View style={styles.section}>
-          <Text style={styles.label}>Issue Details</Text>
+          <Text style={styles.label}>Issue Details (optional)</Text>
           <TextInput
             style={styles.noteInput}
             value={description}
@@ -177,14 +181,14 @@ export const CustomRequestScreen: React.FC = () => {
 
         {/* Optional Photo */}
         <View style={styles.section}>
-          <Text style={styles.label}>Photo (optional)</Text>
+          <Text style={styles.label}>Attach photo (optional)</Text>
           {!hasPhoto ? (
             <TouchableOpacity
               style={styles.dashedUploadBox}
               onPress={handleAddPhoto}
               activeOpacity={0.75}
             >
-              <Feather name="camera" size={20} color={COLORS.secondaryText} />
+              <Feather name="camera" size={20} color={COLORS.primary} />
               <Text style={styles.uploadBoxText}>+ Add photo</Text>
             </TouchableOpacity>
           ) : (
@@ -197,7 +201,7 @@ export const CustomRequestScreen: React.FC = () => {
                   setHasPhoto(false);
                 }}
               >
-                <Feather name="x" size={16} color={COLORS.white} />
+                <Feather name="x" size={15} color={COLORS.white} />
               </TouchableOpacity>
             </View>
           )}
@@ -206,11 +210,11 @@ export const CustomRequestScreen: React.FC = () => {
 
       <View style={styles.stickyFooter}>
         <TouchableOpacity
-          style={styles.postButton}
+          style={styles.postPillButton}
           onPress={handlePostRequest}
           activeOpacity={0.88}
         >
-          <Text style={styles.postButtonText}>
+          <Text style={styles.postPillButtonText}>
             Post Request · {formatKzt(numericPrice)}
           </Text>
         </TouchableOpacity>
@@ -230,54 +234,71 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingTop: Platform.OS === 'ios' ? 12 : 20,
     paddingBottom: 24,
   },
+  topNavRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 14,
+  },
   backButton: {
-    alignSelf: 'flex-start',
-    paddingVertical: 6,
-    paddingRight: 12,
-    marginBottom: 12,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: COLORS.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  headerTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: COLORS.ink,
   },
   screenTitle: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.ink,
     letterSpacing: -0.4,
-    marginBottom: 8,
+    marginBottom: 4,
   },
   addressRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 18,
+    marginBottom: 16,
   },
   addressText: {
-    fontSize: 14,
+    fontSize: 13.5,
     color: COLORS.secondaryText,
     fontWeight: '500',
   },
   divider: {
     height: 1,
     backgroundColor: COLORS.divider,
-    marginBottom: 20,
+    marginBottom: 18,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 18,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 13.5,
+    fontWeight: '700',
     color: COLORS.ink,
     marginBottom: 8,
   },
   textInput: {
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    height: 50,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    height: 52,
     fontSize: 15,
     color: COLORS.ink,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   chipsRow: {
     flexDirection: 'row',
@@ -286,12 +307,15 @@ const styles = StyleSheet.create({
   },
   chip: {
     backgroundColor: COLORS.surface,
-    paddingHorizontal: 14,
+    paddingHorizontal: 15,
     paddingVertical: 9,
     borderRadius: 999,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   chipActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.blackPill,
+    borderColor: COLORS.blackPill,
   },
   chipText: {
     fontSize: 13.5,
@@ -305,50 +329,56 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    height: 52,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    height: 54,
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   priceInput: {
     flex: 1,
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '800',
     color: COLORS.ink,
   },
   currencySuffix: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.secondaryText,
+    color: COLORS.primary,
     marginLeft: 8,
   },
   noteInput: {
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 14,
     minHeight: 88,
-    fontSize: 15,
+    fontSize: 14.5,
     color: COLORS.ink,
     textAlignVertical: 'top',
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   dashedUploadBox: {
-    height: 104,
-    borderRadius: 14,
+    height: 98,
+    borderRadius: 16,
     borderWidth: 1.5,
     borderStyle: 'dashed',
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
+    borderColor: '#BFDBFE',
+    backgroundColor: '#F8FAFC',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 6,
   },
   uploadBoxText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.secondaryText,
+    fontSize: 13.5,
+    fontWeight: '700',
+    color: COLORS.primary,
   },
   photoPreviewWrap: {
     position: 'relative',
+    borderRadius: 16,
+    overflow: 'hidden',
   },
   removePhotoBtn: {
     position: 'absolute',
@@ -357,29 +387,33 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(15, 23, 42, 0.72)',
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   stickyFooter: {
     paddingHorizontal: 20,
     paddingTop: 12,
-    paddingBottom: 24,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
     borderTopWidth: 1,
     borderTopColor: COLORS.divider,
     backgroundColor: COLORS.background,
   },
-  postButton: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 12,
-    height: 54,
+  postPillButton: {
+    backgroundColor: COLORS.blackPill,
+    height: 56,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    elevation: 4,
   },
-  postButtonText: {
+  postPillButtonText: {
     color: COLORS.white,
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15.5,
+    fontWeight: '700',
   },
 });
-

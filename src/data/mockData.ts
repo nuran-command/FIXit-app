@@ -30,6 +30,8 @@ export interface ServiceItem {
   priceKzt: number;
   etaMinutes: number;
   subtitle: string;
+  tag?: string;
+  popular?: boolean;
 }
 
 export interface ProProfile {
@@ -77,17 +79,43 @@ export interface ActiveOrder {
 export const COLORS = {
   background: '#FFFFFF',
   surface: '#F8FAFC',
+  surfaceSoft: '#F1F5F9',
+  surfaceBlue: '#EFF6FF',
+  surfaceBlueLight: '#F0F7FF',
   divider: '#F1F5F9',
   border: '#E2E8F0',
-  primary: '#0F172A',
-  ink: '#0F172A',
-  secondaryText: '#64748B',
-  mutedText: '#94A3B8',
-  emerald: '#10B981',
+  borderLight: '#F1F5F9',
+  borderBlue: '#BFDBFE',
+  borderBlueGlow: '#93C5FD',
+
+  // Modern Blue Palette (Requested by user)
+  primary: '#2563EB',         // Vibrant Royal Blue
+  primaryDark: '#1D4ED8',     // Deep Cobalt
+  primaryLight: '#3B82F6',    // Bright Blue
+  primarySoft: '#EFF6FF',     // Ice Blue pastel card tint
+  primaryTint: '#DBEAFE',     // Soft chip tint
+  heroBlueStart: '#1D4ED8',
+  heroBlueEnd: '#3B82F6',
+  skyBlue: '#0284C7',
+  skyBlueLight: '#E0F2FE',
+
+  // Ink / Text
+  ink: '#0F172A',             // Dark bold ink for high contrast headers
+  inkSecondary: '#334155',    // Slate text
+  secondaryText: '#64748B',   // Muted slate
+  mutedText: '#94A3B8',       // Light gray
+  navInactive: '#94A3B8',
+
+  // Accents
+  emerald: '#10B981',         // Verified / Online
   emeraldSurface: '#ECFDF5',
-  kaspiRed: '#F14635',
-  amber: '#F59E0B',
+  emeraldDark: '#047857',
+  amber: '#F59E0B',           // Star ratings
+  amberSurface: '#FEF3C7',
+  kaspiRed: '#F14635',        // Kaspi.kz payment
+  kaspiRedLight: '#FFF1F0',
   white: '#FFFFFF',
+  blackPill: '#0F172A',       // Bottom nav pill & buttons
 };
 
 export const ASTANA_ADDRESSES = [
@@ -127,38 +155,46 @@ export const FIXED_SERVICES: ServiceItem[] = [
     priceKzt: 8500,
     etaMinutes: 15,
     subtitle: 'Faucet, cartridge, or hose repair · ~15 min arrival',
+    tag: 'Popular in Yesil',
+    popular: true,
   },
   {
     id: 'srv-pipe-burst',
-    title: 'Pipe Burst Repair',
+    title: 'Pipe Burst Emergency',
     category: 'Plumbing',
     priceKzt: 14000,
     etaMinutes: 10,
-    subtitle: 'Rapid shutoff and pipe sealing · ~10 min arrival',
+    subtitle: 'Rapid shutoff and pipe pressure sealing · ~10 min arrival',
+    tag: '24/7 Rapid',
+    popular: true,
   },
   {
     id: 'srv-short-circuit',
-    title: 'Short Circuit & Breaker Fix',
+    title: 'Short Circuit & Breaker',
     category: 'Electrical',
     priceKzt: 11000,
     etaMinutes: 12,
-    subtitle: 'Panel diagnostics and breaker replacement · ~12 min arrival',
+    subtitle: 'Panel diagnostics & breaker replacement · ~12 min arrival',
+    tag: 'Electrician',
+    popular: true,
   },
   {
     id: 'srv-socket-switch',
-    title: 'Socket & Switch Replacement',
+    title: 'Socket & Switch Install',
     category: 'Electrical',
     priceKzt: 6500,
     etaMinutes: 18,
     subtitle: 'Wall outlet or dimmer installation · ~18 min arrival',
+    tag: 'Standard',
   },
   {
     id: 'srv-washer-drain',
-    title: 'Washing Machine Drain Fix',
+    title: 'Washing Machine Drain',
     category: 'Appliances',
     priceKzt: 9500,
     etaMinutes: 20,
-    subtitle: 'Filter cleaning and drain pump check · ~20 min arrival',
+    subtitle: 'Filter cleaning & drain pump repair · ~20 min arrival',
+    tag: 'Appliance',
   },
   {
     id: 'srv-dishwasher-install',
@@ -166,7 +202,8 @@ export const FIXED_SERVICES: ServiceItem[] = [
     category: 'Appliances',
     priceKzt: 10500,
     etaMinutes: 25,
-    subtitle: 'Water line connection and leak test · ~25 min arrival',
+    subtitle: 'Water line connection & leak test · ~25 min arrival',
+    tag: 'Appliance',
   },
 ];
 
